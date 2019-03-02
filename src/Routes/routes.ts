@@ -1,7 +1,5 @@
-import { mongoose } from '../db/db';
 import { Influencer } from '../db/models/models';
 // import * as data from '../data.json';
-import * as fs from 'fs';
 let routes = (app) => {
     app.get('/api', (req, res) => {
         res.send('Server is up and running');

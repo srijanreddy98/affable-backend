@@ -21,6 +21,7 @@ var __spread = (this && this.__spread) || function () {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var models_1 = require("../db/models/models");
+// import * as data from '../data.json';
 var routes = function (app) {
     app.get('/api', function (req, res) {
         res.send('Server is up and running');
