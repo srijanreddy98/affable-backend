@@ -18,7 +18,8 @@ var App = /** @class */ (function () {
         }));
     }
     App.prototype.serve = function () {
-        this.app.listen(3000, function () { return console.log('Server is up and on port 3000'); });
+        var port = process.env.PORT || 3000;
+        this.app.listen(port, function () { return console.log("Server is up and on port " + port); });
     };
     App.prototype.setRoutes = function (routes) {
         routes(this.app);
