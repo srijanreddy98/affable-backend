@@ -1,4 +1,15 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -42,18 +53,16 @@ var generateFilterBasedQuery = function (filters, offset) {
     var sortBase = 'followerCount';
     if (filters.sortBase != 0)
         sortBase = filters.sortBase == 1 ? 'comments' : 'likes';
+    var filter = filters.bio === '' ? {} : { biography: new RegExp(filters.bio + '*', 'i') };
     var sortFilter = filters.desc ? '-' + sortBase : sortBase;
     if (filters.interests.length == 0)
-        return models_1.Influencer.find({}).sort(sortFilter).skip(offset * 10).limit(10);
-    var interestFilter = filters.shouldContainOne ? { 'stats.interests': { $in: filters.interests } } : { 'stats.interests': { $all: filters.interests } };
-    return models_1.Influencer.find(interestFilter).sort(sortFilter).skip(offset * 10).limit(10);
+        return models_1.Influencer.find(filter).sort(sortFilter).skip(offset * 10).limit(10);
+    filter = __assign({}, filter, filters.shouldContainOne ? { 'stats.interests': { $in: filters.interests } } : { 'stats.interests': { $all: filters.interests } });
+    return models_1.Influencer.find(filter).sort(sortFilter).skip(offset * 10).limit(10);
 };
 var routes = function (app) {
     app.get('/api', function (req, res) {
         res.send('Server is up and running');
-    });
-    app.get('/api/interests', function (req, res) {
-        models_1.Influencer.find({ 'stats.interests': req.query.interest }).sort([['followerCount', 'descending']]).skip(req.query.offset * 10).limit(10).then(function (docs) { return res.send(docs); }, function (err) { return res.send(err); });
     });
     app.post('/api/interests', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
         var query;
@@ -82,7 +91,11 @@ var routes = function (app) {
         });
     }); });
     app.get('/api/update', function (req, res) {
-        models_1.Influencer.findOneAndUpdate({ "_id": '5c8482f6f94fb92fdb8e5857' }, { $set: { "followerCount": 311424017 } }, { new: true }).then(function (doc) { return res.send(doc); }, function (err) { return res.send(err); });
+        models_1.Influencer.findOneAndUpdate({ "_id": '5c88a6f01947492a2bf6335c' }, { $set: { "followerCount": 311424017 } }, { new: true }).then(function (doc) { return res.send(doc); }, function (err) { return res.send(err); });
+    });
+    app.get('/api/update2', function (req, res) {
+        var regex = new RegExp('Light*', 'i');
+        models_1.Influencer.find({ biography: regex }).then(function (doc) { return res.send(doc); }, function (err) { return res.send(err); });
     });
 };
 exports.routes = routes;

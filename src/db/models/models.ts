@@ -21,27 +21,31 @@ const influencerSchema = new Schema({
     followerCount: Number,
     stats: {
         followerCount: Number,
-        interests: [String]
-    },
-    engagement: {
-      avgCommentsRatio: Number,
-      avgLikesRatio: Number
+        interests: [String],
+        engagement: {
+            avgCommentsRatio: Number,
+            avgLikesRatio: Number
+        },
     },
     comments: Number,
     likes: Number
 });
-influencerSchema.post('save', function (doc) {
-    // console.log(doc);
-    // console.log(this.modifiedPaths());
-    console.log('here');
-})
-influencerSchema.post('findOneAndUpdate', function (doc, next) {
-    // console.log(doc);
-    console.log('here');
-    console.log(this);
-    next();
-
+influencerSchema.post('findOneAndUpdate', function (dc, next) {
+    if (this._update.$set.followerCount || this._update.$set.stats) {
+        Influencer.findOne(this._conditions).then(
+            doc => {
+                const likes = doc.followerCount * doc.stats.engagement.avgLikesRatio;
+                const comments = doc.followerCount * doc.stats.engagement.avgCommentsRatio;
+                Influencer.findOneAndUpdate(this._conditions, {$set: {likes, comments}}).then(
+                    docs => docs,
+                    err => console.log(err)
+                );
+            },
+            err => console.log(err)
+        );
+    }
 })
 let Influencer = mongoose.model('influencer', influencerSchema);
 
 export {Influencer}
+ 

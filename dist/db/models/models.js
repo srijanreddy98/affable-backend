@@ -22,25 +22,24 @@ var influencerSchema = new Schema({
     followerCount: Number,
     stats: {
         followerCount: Number,
-        interests: [String]
-    },
-    engagement: {
-        avgCommentsRatio: Number,
-        avgLikesRatio: Number
+        interests: [String],
+        engagement: {
+            avgCommentsRatio: Number,
+            avgLikesRatio: Number
+        },
     },
     comments: Number,
     likes: Number
 });
-influencerSchema.post('save', function (doc) {
-    // console.log(doc);
-    // console.log(this.modifiedPaths());
-    console.log('here');
-});
-influencerSchema.post('findOneAndUpdate', function (doc, next) {
-    // console.log(doc);
-    console.log('here');
-    console.log(this);
-    next();
+influencerSchema.post('findOneAndUpdate', function (dc, next) {
+    var _this = this;
+    if (this._update.$set.followerCount || this._update.$set.stats) {
+        Influencer.findOne(this._conditions).then(function (doc) {
+            var likes = doc.followerCount * doc.stats.engagement.avgLikesRatio;
+            var comments = doc.followerCount * doc.stats.engagement.avgCommentsRatio;
+            Influencer.findOneAndUpdate(_this._conditions, { $set: { likes: likes, comments: comments } }).then(function (docs) { return docs; }, function (err) { return console.log(err); });
+        }, function (err) { return console.log(err); });
+    }
 });
 var Influencer = db_1.mongoose.model('influencer', influencerSchema);
 exports.Influencer = Influencer;
